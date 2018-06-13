@@ -16,7 +16,14 @@
 * 关于代码提交提交到你自己的github从该工程fork过去的工程下。<br/>
   比如路径为https://github.com/migu999/Demo.git   其中migu999为gitHub Username<br/>
   考试结束截止时间考试程序会根据各位提供的GitHub Username去拉取代码，后进行自动的单元测试<br/>
-
+* 如已经fork并clone过代码的同学们可以通过以下命令进行更新：
+  + git remote -v 查看远程仓库
+  + 设置上游仓库
+      git remote add upstream https://github.com/migu999/Demo.git
+  + git checkout master
+  + 从上游仓库下载代码：git fetch upstream
+  + 合并代码 git merge upstream/master
+  + 提交代码 git push origin master
 # 题目
 从输入文件读取字符串，使用多线程进行排序，然后写入输出文件
 * 构造N个线程将数据切割成N组分别使用qsort算法排序
