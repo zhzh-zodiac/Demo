@@ -1,6 +1,8 @@
 package example;
 
 import static org.junit.Assert.*;
+
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.BufferedReader;
@@ -11,6 +13,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class OneTest {
+
+  @Before
+  public void beforeFoo(){
+    File file = new File("out.txt");
+    if(file.exists()){
+      file.delete();
+    }
+  }
 
   private List<String> readOutFile() {
     File file = new File("out.txt");
