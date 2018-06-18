@@ -1,6 +1,5 @@
 package example;
 
-import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,45 +40,7 @@ public class One {
             threadCount=listSize;
         }
 
-        String[] arr = new String[listSize];
-        for(int i =0;i<listSize;i++)
-        {
-            arr[i] = list.get(i);
-        }
-
-
-        List<List<String>> tempList = new ArrayList<>();
-        for (int i = 0; i < threadCount; i++)
-        {
-            tempList.add(new ArrayList<>());
-        }
-        int len = listSize/threadCount+1;
-        for(int i=0;i<threadCount-1;i++)
-        {
-            tempList.get(i).add("");
-        }
-
-
-
-
-        for (int i = 0; i < listSize - 1; i++)
-        {
-            for (int j = 0; j < listSize - 1; j++)
-            {
-                int index = j % threadCount;
-                List<String> secList = new ArrayList<>();
-                if (index == i)
-                {
-                    String str = list.get(j);
-                    tempList.get(index).add(str);
-                    //secList.add(str);
-                }
-                /*if(0!=secList.size())
-                {
-                    tempList.add(index, secList);
-                }*/
-            }
-        }
+        List<List<String>> tempList = averageAssign(list,threadCount);
 
         List<FutureTask<List<String>>> taskList = new ArrayList<>();
         for(List<String> sList : tempList)
@@ -91,7 +52,7 @@ public class One {
             exec.submit(task);
         }
 
-        List<String> otempList = new ArrayList<>();
+        List<List<String>> otempList = new ArrayList<>();
         for (FutureTask<List<String>> task : taskList)
         {
             List<String> olist = null;
@@ -103,16 +64,18 @@ public class One {
             {
                 e.printStackTrace();
             }
-            otempList.addAll(olist);
+            otempList.add(olist);
         }
 
+        List<String> resultList = mergeSort(otempList);
 
 
 
-        List outList = sort(otempList);
+
+        List outList = resultList;
         try (PrintWriter pw = new PrintWriter (new FileWriter("out.txt")))
         {
-            for (int i = 0; i < outList.size()-1; i++)
+            for (int i = 0; i < outList.size(); i++)
             {
                 System.out.println(outList.get(i));
                 pw.println(outList.get(i));
@@ -123,6 +86,86 @@ public class One {
             e.printStackTrace();
         }
         return message;
+    }
+
+    public static List<String> mergeSort(List<List<String>> listList)
+    {
+        List<String> tlist = null;
+        int low=0;
+        int high=listList.size();
+        if(listList.size()>1)
+        {
+            int mid = (low+high)/2;
+            if(low<high){
+                List<List<String>> leftLists = listList.subList(low,mid);
+                List<List<String>> rightLists = listList.subList(mid,high);
+                List<String> leftList = mergeSort(leftLists);
+                List<String> rightList = mergeSort(rightLists);
+                //左右归并
+                tlist = merge(leftList,rightList);
+            }
+        }
+        else
+        {
+            if(listList.size()>0)
+            tlist = listList.get(0);
+        }
+        return tlist;
+    }
+
+    public static List<String> merge(List<String> leftList ,List<String> rightList) {
+        //int[] temp = new int[high-low+1];
+        List<String> resultList = new ArrayList<>();
+        int leftSize= leftList!=null?leftList.size():-1;
+        int rightSize = rightList!=null? rightList.size():-1;
+        //int k=0;
+        int i=0;
+        int j=0;
+        // 把较小的数先移到新数组中
+        while(i<leftSize && j<rightSize){
+            if(leftList.get(i).compareTo(rightList.get(j))>0){
+                resultList.add(rightList.get(j++));
+            }else{
+                resultList.add(leftList.get(i++));
+            }
+        }
+        // 把左边剩余的数移入数组
+        while(i<leftSize){
+            resultList.add(leftList.get(i++));
+        }
+        // 把右边边剩余的数移入数组
+        while(j<rightSize){
+            resultList.add(rightList.get(j++));
+        }
+        return resultList;
+        // 把新数组中的数覆盖nums数组
+        /*for(int x=0;x<temp.length;x++){
+            a[x+low] = temp[x];
+        }*/
+    }
+
+    /**
+     * 将一个list均分成n个list,主要通过偏移量来实现的
+     * @param source
+     * @return
+     */
+    public static <T> List<List<T>> averageAssign(List<T> source,int n){
+        List<List<T>> result=new ArrayList<List<T>>();
+        int remaider=source.size()%n;  //(先计算出余数)
+        int number=source.size()/n;  //然后是商
+        int offset=0;//偏移量
+        for(int i=0;i<n;i++){
+            List<T> value=null;
+            if(remaider>0){
+                value=source.subList(i*number+offset, (i+1)*number+offset+1);
+                remaider--;
+                offset++;
+            }else{
+                value=source.subList(i*number+offset, (i+1)*number+offset);
+            }
+            result.add(value);
+        }
+        return result;
     }
 
     private List sort(List<String> list)

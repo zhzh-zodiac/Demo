@@ -51,7 +51,7 @@ public class OneTest {
     One one = new One();
     one.foo();
     List<String> list = readOutFile();
-    assertEquals("freets", list.get(2));
+    assertEquals("freets", list.get(3));
   }
 
 }
